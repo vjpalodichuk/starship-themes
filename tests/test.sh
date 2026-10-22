@@ -6,6 +6,8 @@ command -v starship >/dev/null || { printf 'Install Starship before running test
 sandbox=$(mktemp -d "${TMPDIR:-/tmp}/starship-tests.XXXXXXXX")
 trap 'rm -rf "$sandbox"' EXIT
 mkdir -p "$sandbox/home" "$sandbox/config" "$sandbox/cache" "$sandbox/work tree"
+export HOME=$sandbox/home
+export ZDOTDIR=$sandbox/home
 export STARSHIP_CONFIG=$sandbox/config/starship.toml
 export STARSHIP_CACHE=$sandbox/cache
 export XDG_CONFIG_HOME=$sandbox/config
@@ -31,7 +33,7 @@ assert_choice() {
 }
 
 cd "$sandbox/work tree"
-for file in "$repo_dir/activate.sh" "$repo_dir/shell-functions.sh" "$repo_dir/install.sh" "$repo_dir"/lib/*.sh; do
+for file in "$repo_dir/activate.sh" "$repo_dir/shell-functions.sh" "$repo_dir/install.sh" "$repo_dir/uninstall.sh" "$repo_dir"/lib/*.sh; do
   bash -n "$file"
 done
 pass 'All shell scripts parse with Bash'
@@ -70,17 +72,24 @@ contains "$sandbox/list.log" 'C2 (default)'
 cmp "$STARSHIP_CONFIG" "$sandbox/before.toml"
 pass 'Invalid arguments, help, and listing leave the prompt untouched'
 
-switch --palette obsidian > "$sandbox/backup.log"
+[[ -z "$(find "$sandbox" -name '*.backup.*' -print)" ]] || fail 'Switching created automatic backups'
+switch --backup --palette obsidian > "$sandbox/backup.log"
 backup=$(sed -n 's/^Backup: //p' "$sandbox/backup.log")
 cmp "$backup" "$sandbox/before.toml" || fail 'Backup contents differ'
+switch --backup --palette obsidian > "$sandbox/unchanged.log"
+if grep -q '^Backup:' "$sandbox/unchanged.log"; then fail 'Unchanged config created a backup'; fi
+printf '\n\n' | switch --backup > "$sandbox/backup-picker.log"
+contains "$sandbox/backup-picker.log" 'Choose a style:'
 ln -s "$STARSHIP_CONFIG" "$sandbox/link.toml"
-switch --output "$sandbox/link.toml" --palette mocha > /dev/null
+switch --backup --output "$sandbox/link.toml" --palette mocha > "$sandbox/link-backup.log"
+backup=$(sed -n 's/^Backup: //p' "$sandbox/link-backup.log")
+assert_choice "$backup" D obsidian
 [[ -L "$sandbox/link.toml" ]] || fail 'Symlink was replaced'
 assert_choice "$STARSHIP_CONFIG" D mocha
 ln -s "$sandbox/new target.toml" "$sandbox/dangling.toml"
 switch --output "$sandbox/dangling.toml" --style C > /dev/null
 [[ -L "$sandbox/dangling.toml" && -f "$sandbox/new target.toml" ]] || fail 'Dangling link not preserved'
-pass 'Backups contain original bytes; regular and dangling config symlinks survive'
+pass 'Backups are opt-in, skip unchanged files, support the picker, and preserve symlinks'
 
 cp "$repo_dir/configs/C2.toml" "$sandbox/library-before.toml"
 reject switch --style A --output "$repo_dir/configs/C2.toml"
@@ -95,7 +104,7 @@ cmp "$repo_dir/configs/C2.toml" "$sandbox/library-before.toml"
 pass 'Source package, symlink aliases, directories, and symlink loops are protected'
 
 cp "$STARSHIP_CONFIG" "$sandbox/before.toml"
-switch --style C2 --palette aurora --preview > "$sandbox/preview.log" 2> "$sandbox/preview.err"
+switch --backup --style C2 --palette aurora --preview > "$sandbox/preview.log" 2> "$sandbox/preview.err"
 [[ ! -s "$sandbox/preview.err" ]] || { cat "$sandbox/preview.err" >&2; fail 'Preview emitted diagnostics'; }
 contains "$sandbox/preview.log" 'Preview: style C2 / palette aurora'
 cmp "$STARSHIP_CONFIG" "$sandbox/before.toml"
@@ -120,13 +129,12 @@ contains "$sandbox/install.log" 'source '
 bash -c 'source "$1/shell-functions.sh"; starship-theme --output "$2" --style A --palette ocean' \
   _ "$sandbox/installed kit" "$sandbox/config/installed.toml" > /dev/null
 printf 'keep me\n' > "$sandbox/installed kit/user-notes.txt"
-cp "$sandbox/installed kit/activate.sh" "$sandbox/old-activate.sh"
 install_kit > "$sandbox/update.log"
 assert_choice "$sandbox/config/installed.toml" A ocean
 contains "$sandbox/installed kit/user-notes.txt" 'keep me'
-backup=$(sed -n '\|^Backup: .*installed kit/activate.sh.backup.|s/^Backup: //p' "$sandbox/update.log")
-cmp "$backup" "$sandbox/old-activate.sh"
-pass 'Install and update work in paths with spaces, preserve selections and custom files, and back up managed files'
+[[ -z "$(find "$sandbox/installed kit" "$sandbox/home" -name '*.backup.*' -print)" ]] || fail 'Install/update created backups'
+[[ $(find "$sandbox/installed kit/.install-state" -name path | wc -l) -eq 2 ]] || fail 'Update duplicated uninstall records'
+pass 'Install/update preserve selections and custom files without repeated backups or uninstall records'
 
 reject installer --install-dir "$repo_dir"
 reject installer --install-dir "$repo_dir/new-kit"
@@ -138,7 +146,15 @@ reject install_kit --config-file "$sandbox/config/source-link.toml"
 mv "$sandbox/installed kit/activate.sh" "$sandbox/installed-activate.sh"
 ln -s "$sandbox/installed-activate.sh" "$sandbox/installed kit/activate.sh"
 reject install_kit
+rm "$sandbox/installed kit/activate.sh"
+mv "$sandbox/installed-activate.sh" "$sandbox/installed kit/activate.sh"
 pass 'Installer rejects overlapping source/config paths and individual managed symlinks'
+
+bash "$sandbox/installed kit/uninstall.sh" > "$sandbox/uninstall.log"
+[[ ! -e "$sandbox/config/installed.toml" && ! -e "$sandbox/home/.zshrc" ]] || fail 'Fresh uninstall did not remove created config/startup file'
+contains "$sandbox/installed kit/user-notes.txt" 'keep me'
+[[ ! -e "$sandbox/installed kit/activate.sh" && ! -e "$sandbox/installed kit/.install-state" ]] || fail 'Uninstall left managed files/state'
+pass 'Fresh uninstall removes created configs and integration while preserving unrelated files'
 
 STARSHIP_CONFIG= XDG_CONFIG_HOME="$sandbox/xdg config" installer > /dev/null
 assert_choice "$sandbox/xdg config/starship.toml" C2 dracula_dark
@@ -182,6 +198,66 @@ env HOME="$sandbox/bash home" TERM=xterm-256color bash --noprofile --norc -c 'so
 [[ ! -s "$sandbox/bash-startup.err" ]] || { cat "$sandbox/bash-startup.err" >&2; fail 'Bash startup emitted diagnostics'; }
 assert_choice "$sandbox/bash active.toml" C2 ocean
 pass 'Bash setup loads the switcher in login shells and retains an existing profile'
+
+# Preserve initial config bytes through updates and theme switches, plus shell
+# edits outside the marked blocks. All paths and environment stay in the sandbox.
+mkdir -p "$sandbox/restore home"
+printf 'palette = "personal"\n# original config without a final newline' > "$sandbox/original-config"
+cp -p "$sandbox/original-config" "$sandbox/restore target.toml"
+ln -s "$sandbox/restore target.toml" "$sandbox/restore link.toml"
+printf 'export ORIGINAL_SETTING=kept\n' > "$sandbox/restore startup"
+ln -s "$sandbox/restore startup" "$sandbox/restore home/.zshrc"
+restore_install() {
+  env HOME="$sandbox/restore home" ZDOTDIR="$sandbox/restore home" SHELL=/bin/zsh \
+    bash "$repo_dir/install.sh" --install-dir "$sandbox/restore kit" --config-file "$sandbox/restore link.toml" "$@"
+}
+restore_install > /dev/null
+restore_install --style D --palette ocean > /dev/null
+[[ $(find "$sandbox/restore kit/.install-state" -name original | wc -l) -eq 1 ]] || fail 'Reinstall duplicated the original config'
+bash "$sandbox/restore kit/activate.sh" --output "$sandbox/restore link.toml" --palette halloween > /dev/null
+printf 'export LATER_SETTING=kept\n' >> "$sandbox/restore startup"
+printf 'keep legacy backups\n' > "$sandbox/restore kit/configs/C2.toml.backup.legacy"
+bash "$repo_dir/uninstall.sh" --install-dir "$sandbox/restore kit" > /dev/null
+cmp "$sandbox/original-config" "$sandbox/restore target.toml" || fail 'Uninstall did not restore original config bytes'
+[[ -L "$sandbox/restore link.toml" && -L "$sandbox/restore home/.zshrc" ]] || fail 'Uninstall replaced a symlink'
+contains "$sandbox/restore startup" 'export ORIGINAL_SETTING=kept'
+contains "$sandbox/restore startup" 'export LATER_SETTING=kept'
+if grep -q 'starship-themes' "$sandbox/restore startup"; then fail 'Uninstall left shell integration'; fi
+contains "$sandbox/restore kit/configs/C2.toml.backup.legacy" 'keep legacy backups'
+pass 'Uninstall restores the first config across switches/updates and preserves symlinks, shell edits and older backups'
+
+restore_install > /dev/null
+printf '\n# personal edit\n' >> "$sandbox/restore target.toml"
+cp "$sandbox/restore target.toml" "$sandbox/edited-config"
+cp "$sandbox/restore startup" "$sandbox/edited-startup"
+reject bash "$sandbox/restore kit/uninstall.sh"
+contains "$sandbox/rejected.log" '--keep-config'
+cmp "$sandbox/edited-config" "$sandbox/restore target.toml"
+cmp "$sandbox/edited-startup" "$sandbox/restore startup"
+[[ -f "$sandbox/restore kit/activate.sh" ]] || fail 'Refused uninstall removed package files'
+bash "$sandbox/restore kit/uninstall.sh" --keep-config > /dev/null
+cmp "$sandbox/edited-config" "$sandbox/restore target.toml"
+pass 'Personal config edits stop uninstall before writes; --keep-config explicitly retains them'
+
+bash "$sandbox/bash kit/uninstall.sh" > /dev/null
+contains "$sandbox/bash home/.profile" 'export MY_PROFILE=retained'
+[[ ! -e "$sandbox/bash home/.bashrc" && ! -e "$sandbox/bash active.toml" ]] || fail 'Bash uninstall left generated files'
+if grep -q 'starship-themes' "$sandbox/bash home/.profile"; then fail 'Bash login integration remains'; fi
+pass 'Bash uninstall removes both integration blocks and retains the original login profile'
+
+# A second kit may replace the shared shell block. Removing the first must not
+# remove the second kit integration.
+mkdir -p "$sandbox/shared home"
+for kit in first second; do
+  env HOME="$sandbox/shared home" ZDOTDIR="$sandbox/shared home" SHELL=/bin/zsh \
+    bash "$repo_dir/install.sh" --install-dir "$sandbox/$kit kit" --config-file "$sandbox/$kit.toml" > /dev/null
+done
+cp "$sandbox/shared home/.zshrc" "$sandbox/shared-before"
+bash "$sandbox/first kit/uninstall.sh" > /dev/null
+cmp "$sandbox/shared home/.zshrc" "$sandbox/shared-before"
+bash "$sandbox/second kit/uninstall.sh" > /dev/null
+if grep -q 'starship-themes' "$sandbox/shared home/.zshrc"; then fail 'Second kit integration remains'; fi
+pass 'Uninstall removes only blocks owned by the selected kit'
 
 # Native Node detection must tolerate a briefly slow runtime without losing its version.
 # Use a runtime on PATH, independent of workstation paths and project engine ranges.

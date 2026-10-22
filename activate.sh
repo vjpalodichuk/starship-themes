@@ -35,25 +35,26 @@ valid_palette() {
 }
 action=activate
 destination=${STARSHIP_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/starship.toml}
-interactive=false
-if [[ $# -eq 0 ]]; then interactive=true; fi
+interactive=true
+backup_requested=false
 
 usage() {
   cat <<'HELP'
 Usage: ./activate.sh [--style C2|A|C|D] [--palette NAME] [--preview]
-                    [--output FILE] [--list] [--help]
+                    [--output FILE] [--backup] [--list] [--help]
 
 With no arguments, show the style and palette menus. Preserve the active
 style/palette unless changed. New installations default to C2 / Dracula Dark.
 --preview       Print the selected prompt in the current directory; do not activate.
 --output FILE   Write to FILE instead of the active Starship configuration.
+--backup        Back up the destination before changing it; also works with the picker.
 
 Examples:
   ./activate.sh
   ./activate.sh --style C2 --palette halloween --preview
   ./activate.sh --style A --palette ocean
 
-Activation backs up an existing destination first. Starship reads the resulting
+Backups are opt-in. Starship reads the resulting
 plain UTF-8 TOML file directly; this script does not run with each prompt.
 HELP
 }
@@ -61,10 +62,11 @@ fail() { printf 'Error: %s\n' "$*" >&2; exit 1; }
 require_value() { [[ $# -ge 2 && -n "$2" ]] || fail "$1 needs a value"; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --style) require_value "$@"; style=$2; style_requested=true; shift 2 ;;
-    --palette) require_value "$@"; palette=$(normalize_palette "$2"); palette_requested=true; shift 2 ;;
-    --output) require_value "$@"; destination=$2; shift 2 ;;
-    --preview) action=preview; shift ;;
+    --style) require_value "$@"; style=$2; style_requested=true; interactive=false; shift 2 ;;
+    --palette) require_value "$@"; palette=$(normalize_palette "$2"); palette_requested=true; interactive=false; shift 2 ;;
+    --output) require_value "$@"; destination=$2; interactive=false; shift 2 ;;
+    --preview) action=preview; interactive=false; shift ;;
+    --backup) backup_requested=true; shift ;;
     --list)
       printf '%s\n' 'Styles: C2 (default), A, C, D' \
         'Default palette: dracula_dark (Dracula Dark)' \
@@ -150,5 +152,5 @@ fi
 # Protect all package files, including paths reached through symlinks.
 resolved_destination=$(theme_resolve_path "$destination")
 case "$resolved_destination" in "$script_dir"|"$script_dir"/*) fail 'Choose a destination outside the theme package' ;; esac
-theme_write_file "$preview_file" "$destination"
+theme_write_file "$preview_file" "$destination" "$backup_requested"
 printf 'Activated: style %s / palette %s\nConfig: %s\n' "$style" "$palette" "$destination"
