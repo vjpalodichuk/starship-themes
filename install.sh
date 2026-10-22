@@ -53,7 +53,9 @@ case "$install_dir/" in "$config_target/"*) fail 'The config file cannot be a pa
 [[ ! -d "$config_target" ]] || fail 'Config file is a directory'
 [[ ! -e "$install_dir" || -d "$install_dir" ]] || fail 'Install directory is a file'
 
-files=(activate.sh shell-functions.sh lib/files.sh configs/A.toml configs/C.toml configs/C2.toml configs/D.toml README.md LICENSE)
+files=(activate.sh uninstall.sh shell-functions.sh lib/files.sh configs/A.toml configs/C.toml configs/C2.toml configs/D.toml README.md LICENSE)
+state_dir=$install_dir/.install-state
+[[ ! -L "$state_dir" && ( ! -e "$state_dir" || -d "$state_dir" ) ]] || fail 'Invalid install state directory'
 for file in "${files[@]}"; do
   [[ -f "$repo_dir/$file" ]] || fail "Missing package file: $file"
   target=$(theme_resolve_path "$install_dir/$file")
@@ -80,17 +82,13 @@ index=0
 for startup in "${startup_files[@]}"; do
   prepared=$staging/startup.$index
   if [[ -f "$startup" ]]; then
-    awk '
-      $0 == "# >>> starship-themes >>>" { if (managed) exit 1; managed=1; next }
-      $0 == "# <<< starship-themes <<<" { if (!managed) exit 1; managed=0; next }
-      !managed { print }
-      END { if (managed) exit 1 }
-    ' "$startup" > "$prepared"
+    theme_strip_integration "$startup" > "$prepared"
   else
     : > "$prepared"
   fi
   {
     printf '# >>> starship-themes >>>\n'
+    printf '# Theme library: %q\n' "$install_dir"
     if [[ $index -eq 0 ]]; then
       printf 'export STARSHIP_CONFIG=%q\n' "$config_target"
       # Keep an existing initialization rather than adding another invocation.
@@ -106,6 +104,14 @@ for startup in "${startup_files[@]}"; do
     printf '# <<< starship-themes <<<\n'
   } >> "$prepared"
   index=$((index + 1))
+done
+
+# Keep uninstall information in one private location, never adjacent backups.
+# Capture it before the first write, and retain it unchanged on updates.
+(umask 077; mkdir -p "$state_dir")
+theme_record_install config "$config_target" "$state_dir"
+for startup in "${startup_files[@]}"; do
+  theme_record_install startup "$(theme_resolve_path "$startup")" "$state_dir"
 done
 
 for file in "${files[@]}"; do
@@ -130,4 +136,4 @@ LC_ALL=C awk '/^# Style / || /^palette[[:space:]]*=/' "$staging/starship.toml"
 printf '\nOpen a new terminal, or reload now:\n'
 printf '  source %q\n' "${startup_files[0]}"
 printf '\nThen run: starship-theme\n'
-printf 'Existing files have adjacent .backup.* copies.\n'
+printf 'Uninstall: bash %q\n' "$install_dir/uninstall.sh"

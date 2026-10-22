@@ -24,7 +24,7 @@ It will:
 - Copy the four layout configs and switcher to `~/.config/starship-themes/`.
 - Activate the theme in `~/.config/starship.toml`, preserving recognized existing style/palette choices. Fresh installs use C2 / Dracula Dark.
 - Configure Starship and the `starship-theme` function in your shell startup file. Zsh uses `${ZDOTDIR:-$HOME}/.zshrc`. Bash uses `~/.bashrc` and ensures the existing login profile loads it.
-- Back up existing configs and startup files to adjacent `.backup.TIMESTAMP.RANDOM` files. Existing config/startup symlinks are preserved.
+- Keep uninstall information in a private `.install-state/` directory inside the installed kit. Save the original Starship config once, if it exists; shell integration is tracked by marked blocks. No adjacent backups are created. Existing config/startup symlinks are preserved.
 
 Open a new terminal, or run the reload command printed by the installer. No manual editing of startup files is needed. Existing Starship initialization in the configured startup file is retained. Reinstalling replaces the installer's marked block without duplicating it or removing other shell settings.
 
@@ -37,11 +37,12 @@ starship-theme                                # Interactive layout and palette p
 starship-theme --palette halloween            # Keep the current layout
 starship-theme --style A                      # Keep the current palette
 starship-theme --style C2 --palette ocean
+starship-theme --palette ocean --backup       # Save the previous config first
 starship-theme --palette obsidian --preview   # Try without activating
 starship-theme --list
 ```
 
-Press Enter in the picker to keep the current selection. Changing themes backs up the active TOML before replacing it. The switcher runs when you select a theme, not on every prompt.
+Press Enter in the picker to keep the current selection. Changing themes creates no backup unless you pass `--backup`; `starship-theme --backup` opens the picker with backups enabled. Requested backups use adjacent `.backup.TIMESTAMP.RANDOM` files and are only created when an existing config changes. Previewing never creates a backup. The switcher runs when you select a theme, not on every prompt.
 
 | Layout | Appearance |
 | --- | --- |
@@ -67,7 +68,28 @@ git pull --ff-only
 ./install.sh
 ```
 
-The installer refreshes the files and keeps recognized active choices. Hand edits to managed files are backed up and replaced; keep personal variants separately.
+The installer refreshes the files and keeps recognized active choices. Hand edits to managed files are replaced; keep personal variants separately. To save edits to the active config before updating, switch to a packaged theme with `--backup`. Updates retain the first saved original config for uninstall and do not create repeated snapshots.
+
+## Uninstall
+
+Run the installed uninstaller, or use the checkout:
+
+```sh
+bash "${XDG_CONFIG_HOME:-$HOME/.config}/starship-themes/uninstall.sh"
+./uninstall.sh --install-dir "$HOME/.local/share/starship-themes"
+```
+
+The installed copy automatically finds its kit, including custom locations. Uninstall removes that kit's marked shell integration blocks and packaged files, preserving shell settings added outside the blocks, config/startup symlinks, unrelated files, and existing backups. It restores the Starship config that existed before the first installation. If no config existed, it removes the generated config. No pre-existing `starship.toml` is required to install. Startup files created by the installer are removed only if they are empty after removing the integration.
+
+Theme switches and reinstalls do not replace the saved original config. If the active config has personal edits, uninstall stops before making changes. Save those edits elsewhere and switch to a packaged theme before retrying, or explicitly keep the active config:
+
+```sh
+bash "${XDG_CONFIG_HOME:-$HOME/.config}/starship-themes/uninstall.sh" --keep-config
+```
+
+`--keep-config` leaves the config in place and discards uninstall state with the kit. Open a new terminal after uninstalling to unload the shell function and environment settings. Starship itself and fonts remain installed.
+
+For installations made before uninstall support, run the updated installer once to record the current setup. Uninstall can then restore that config; earlier `.backup.*` files remain available for restoring older setups. Nothing can reconstruct a pre-install config that was never saved.
 
 ## Custom locations
 
@@ -87,7 +109,7 @@ You can select a theme during installation:
 ./install.sh --style A --palette ocean
 ```
 
-To restore an earlier setup, copy the desired `.backup.*` files over the active config and affected startup files. To disable the integration, remove the `starship-themes` marked blocks from those startup files. Save any backups before deleting the installed directory.
+Optional `.backup.*` files can be copied over the active config to restore a previous theme manually. Uninstall does not delete these files.
 
 ## Repository layout
 
@@ -96,7 +118,8 @@ configs/              Four standalone layout configs, each with all fifteen pale
 activate.sh           Theme selection script
 shell-functions.sh    Sourceable starship-theme function
 install.sh            Local installer and shell configuration
-lib/files.sh          Shared backup and file-writing helpers
+uninstall.sh          Remove integration and restore the original config
+lib/files.sh          Shared file-writing and uninstall-state helpers
 tests/test.sh         Isolated Bash integration tests
 docs/                 Design notes and an original theme preview
 README.md             Installation and usage

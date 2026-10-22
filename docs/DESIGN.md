@@ -11,6 +11,8 @@ The layouts and switcher were imported from the finished “Fix Starship prompt 
 
 `dracula` follows the [official Dracula palette](https://draculatheme.com/spec); `dracula_dark` uses darker tints. Bat is not a dependency.
 
-`install.sh` copies the required files, activates the config, and updates shell integration. Shared file writes back up existing contents and preserve symlinks. A multi-file installation is not one atomic transaction; backups remain available if an I/O error interrupts an update.
+`install.sh` copies the required files, activates the config, and updates shell integration. Shared file writes preserve symlinks, skip unchanged files, and only create an adjacent backup when theme activation explicitly requests `--backup`.
+
+The private installed `.install-state/` directory records each affected config/startup target once. Only an existing Starship config needs its original contents saved: activation replaces that whole file, so shell-style block removal cannot reconstruct it. Startup files need only path/existence metadata; uninstall removes blocks carrying the selected kit's identity, preserving surrounding settings. Reinstalls retain the original state. A multi-file install/uninstall is not one atomic transaction; state is recorded before installation writes, and uninstall validates all targets and prepares shell changes before writing. Personal edits to an active config stop uninstall unless `--keep-config` is selected.
 
 The private conversation and personal workstation files are not included. The original recorded preview is documented in `previews/README.md`.
