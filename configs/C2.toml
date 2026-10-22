@@ -2,7 +2,8 @@
 
 # Style C2; switch styles with activate.sh. Language icons and major/minor versions share one section; Kubernetes enabled.
 add_newline = false
-command_timeout = 900
+# Allow brief runtime startup delays (for example, `node --version` on a busy machine).
+command_timeout = 2000
 scan_timeout = 25
 # Palettes: mocha, ocean, nord, daybreak, halloween, thanksgiving, christmas, new_year, original_blue, dracula, dracula_dark, aurora, solar_flare, velvet_gold, obsidian
 palette = 'dracula_dark'

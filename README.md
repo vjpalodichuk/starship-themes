@@ -58,6 +58,8 @@ Press Enter in the picker to keep the current selection. Changing themes backs u
 
 Git branch/status share a section, with `●1` for a modified file, `+1` for a staged file, and `?1` for an untracked file. Languages and build tools share a section with icons and detected major/minor versions. Static framework indicators show icons only. Docker and Kubernetes are icon-only; Kubernetes is enabled when a context is detected.
 
+Runtime versions describe the executable selected by your shell's `PATH`. For example, Starship detects Node projects from `package.json`, `.nvmrc`, `.node-version`, or `node_modules`, then runs `node --version`. A `package.json` engine range is a requirement, not the installed version. See [Starship's Node.js module](https://starship.rs/config/#node-js). All layouts allow up to two seconds per runtime command to tolerate brief startup delays. A command that exceeds that budget still reports a timeout; no project paths or versions are hardcoded.
+
 ## Update
 
 ```sh
