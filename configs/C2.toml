@@ -1,0 +1,771 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Style C2; switch styles with activate.sh. Language icons and major/minor versions share one section; Kubernetes enabled.
+add_newline = false
+command_timeout = 900
+scan_timeout = 25
+# Palettes: mocha, ocean, nord, daybreak, halloween, thanksgiving, christmas, new_year, original_blue, dracula, dracula_dark, aurora, solar_flare, velvet_gold, obsidian
+palette = 'dracula_dark'
+format = '[](fg:os_bg)$os$directory$git_branch$git_status$git_state([](fg:prev_bg bg:language_bg)$java$kotlin$gradle${custom.groovy}${custom.maven}$scala$rust$python$nodejs$deno$bun${custom.javascript}${custom.typescript}${custom.react}${custom.vue}${custom.svelte}${custom.html}${custom.css}${custom.shell}$golang$c$cpp$cmake$swift$dart${custom.flutter}$php$ruby$lua$zig$elixir$erlang$haskell$ocaml$perl$rlang$nim$crystal$dotnet)$docker_context$kubernetes$terraform$aws$gcloud$azure$direnv$cmd_duration[](fg:prev_bg) $character'
+
+
+[os]
+disabled = false
+format = '[ $symbol ](fg:os_fg bg:os_bg)'
+
+# Icons only: no OS name or version in the prompt.
+[os.symbols]
+Macos = ''
+Linux = '󰌽'
+Windows = '󰍲'
+Ubuntu = '󰕈'
+Debian = ''
+Arch = '󰣇'
+Fedora = '󰣛'
+Alpine = ''
+Android = ''
+CentOS = ''
+FreeBSD = ''
+Gentoo = '󰣨'
+Kali = ''
+Manjaro = ''
+Mint = '󰣭'
+NixOS = ''
+OpenBSD = ''
+openSUSE = ''
+Pop = ''
+Raspbian = ''
+Redhat = '󱄛'
+SUSE = ''
+Unknown = '󰀄'
+
+[directory]
+format = '[](fg:prev_bg bg:path_bg)[  $path$read_only ](fg:path_fg bg:path_bg)'
+style = 'fg:path_fg bg:path_bg'
+read_only = ' '
+read_only_style = 'fg:path_fg bg:path_bg'
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+symbol = ' '
+format = '[](fg:prev_bg bg:git_bg)[ $symbol$branch ](fg:git_fg bg:git_bg)'
+style = 'fg:git_fg bg:git_bg'
+
+[git_status]
+format = '([$all_status$ahead_behind](fg:status_fg bg:git_bg))'
+style = 'fg:status_fg bg:git_bg'
+conflicted = '󰞇${count} '
+ahead = '⇡${count} '
+behind = '⇣${count} '
+diverged = '⇕⇡${ahead_count}⇣${behind_count} '
+untracked = '?${count} '
+stashed = '≡${count} '
+modified = '●${count} '
+staged = '+${count} '
+renamed = '»${count} '
+deleted = '✘${count} '
+
+typechanged = '~${count} '
+[git_state]
+format = '[ $state( $progress_current/$progress_total) ](fg:git_fg bg:git_bg)'
+style = 'fg:git_fg bg:git_bg'
+
+[fill]
+symbol = ' '
+
+[cmd_duration]
+min_time = 1000
+format = '[](fg:prev_bg bg:duration_bg)[ 󰔛 $duration ](fg:duration_fg bg:duration_bg)'
+style = 'fg:duration_fg bg:duration_bg'
+
+[time]
+disabled = false
+time_format = '%H:%M'
+format = '[ $time]($style)'
+style = 'muted_fg'
+
+[character]
+success_symbol = '[❯](bold fg:success_fg)'
+error_symbol = '[❯](bold fg:error_fg)'
+vimcmd_symbol = '[❮](bold fg:mode_fg)'
+
+# Language indicators: shown only when Starship detects a matching project.
+[java]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[kotlin]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[gradle]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[scala]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[rust]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[python]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[nodejs]
+detect_files = ['package.json', '.node-version', '.nvmrc']
+detect_folders = ['node_modules']
+detect_extensions = []
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[deno]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[bun]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[golang]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[c]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[cpp]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[cmake]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[swift]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[dart]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[php]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[ruby]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[lua]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[zig]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[elixir]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[erlang]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[haskell]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[ocaml]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[perl]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[rlang]
+symbol = '󰟔 '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[nim]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[crystal]
+symbol = ' '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+version_format = '${major}(.${minor})'
+
+[dotnet]
+symbol = '󰪮 '
+format = '[ $symbol($version )](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+
+# Custom modules must be referenced as ${custom.name} in format.
+# Detection is based on matching files; do not add an unconditional 'when'.
+version_format = '${major}(.${minor})'
+
+[custom.groovy]
+detect_extensions = ['groovy', 'gvy']
+detect_files = ['Jenkinsfile']
+format = '[ $symbol](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+symbol = ' '
+
+[custom.maven]
+detect_files = ['pom.xml']
+format = '[ $symbol](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+symbol = ' '
+
+[custom.javascript]
+detect_extensions = ['js', 'jsx', 'mjs', 'cjs']
+format = '[ $symbol](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+symbol = ' '
+
+[custom.typescript]
+detect_extensions = ['ts', 'tsx']
+format = '[ $symbol](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+symbol = ' '
+
+[custom.react]
+detect_extensions = ['jsx', 'tsx']
+format = '[ $symbol](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+symbol = ' '
+
+[custom.vue]
+detect_extensions = ['vue']
+format = '[ $symbol](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+symbol = '󰡄 '
+
+[custom.svelte]
+detect_extensions = ['svelte']
+format = '[ $symbol](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+symbol = ' '
+
+[custom.html]
+detect_extensions = ['html', 'htm']
+format = '[ $symbol](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+symbol = ' '
+
+[custom.css]
+detect_extensions = ['css', 'scss', 'sass', 'less']
+format = '[ $symbol](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+symbol = ' '
+
+[custom.shell]
+detect_extensions = ['sh', 'bash', 'zsh']
+format = '[ $symbol](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+symbol = ' '
+
+[docker_context]
+symbol = ' '
+format = '[](fg:prev_bg bg:cloud_bg)[ $symbol](fg:cloud_fg bg:cloud_bg)'
+style = 'fg:cloud_fg bg:cloud_bg'
+[kubernetes]
+disabled = false
+symbol = '󱃾 '
+format = '[](fg:prev_bg bg:cloud_bg)[ $symbol](fg:cloud_fg bg:cloud_bg)'
+style = 'fg:cloud_fg bg:cloud_bg'
+[terraform]
+symbol = '󱁢 '
+format = '[](fg:prev_bg bg:cloud_bg)[ $symbol ](fg:cloud_fg bg:cloud_bg)'
+style = 'fg:cloud_fg bg:cloud_bg'
+[aws]
+symbol = '󰸏 '
+format = '[](fg:prev_bg bg:cloud_bg)[ $symbol$profile ](fg:cloud_fg bg:cloud_bg)'
+style = 'fg:cloud_fg bg:cloud_bg'
+[gcloud]
+symbol = '󱇶 '
+format = '[](fg:prev_bg bg:cloud_bg)[ $symbol$project ](fg:cloud_fg bg:cloud_bg)'
+style = 'fg:cloud_fg bg:cloud_bg'
+[azure]
+symbol = '󰠅 '
+format = '[](fg:prev_bg bg:cloud_bg)[ $symbol$subscription ](fg:cloud_fg bg:cloud_bg)'
+style = 'fg:cloud_fg bg:cloud_bg'
+[direnv]
+disabled = true
+format = '[](fg:prev_bg bg:cloud_bg)[ 󱁿 ](fg:cloud_fg bg:cloud_bg)'
+style = 'fg:cloud_fg bg:cloud_bg'
+
+# Flutter/Dart package projects (pubspec.yaml; may include non-Flutter Dart packages)
+[custom.flutter]
+detect_files = ["pubspec.yaml"]
+symbol = " "
+format = '[ $symbol](fg:language_fg bg:language_bg)'
+style = 'fg:language_fg bg:language_bg'
+
+# Named palettes; language icons share language_bg and language_fg.
+
+[palettes.mocha]
+os_bg = '#fab387'
+os_fg = '#282a36'
+path_bg = '#89b4fa'
+path_fg = '#282a36'
+git_bg = '#cba6f7'
+git_fg = '#282a36'
+java_bg = '#f38ba8'
+java_fg = '#282a36'
+kotlin_bg = '#b4a1ef'
+kotlin_fg = '#282a36'
+build_bg = '#94e2d5'
+build_fg = '#282a36'
+language_bg = '#b4a1ef'
+language_fg = '#282a36'
+web_bg = '#89dceb'
+web_fg = '#282a36'
+cloud_bg = '#a6e3a1'
+cloud_fg = '#282a36'
+duration_bg = '#f5c2e7'
+duration_fg = '#282a36'
+status_fg = '#282a36'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.ocean]
+os_bg = '#7dcfff'
+os_fg = '#282a36'
+path_bg = '#c0e7ff'
+path_fg = '#282a36'
+git_bg = '#c4a7ff'
+git_fg = '#282a36'
+java_bg = '#ff9eaa'
+java_fg = '#282a36'
+kotlin_bg = '#b7a1e8'
+kotlin_fg = '#282a36'
+build_bg = '#8ee3cf'
+build_fg = '#282a36'
+language_bg = '#b7a1e8'
+language_fg = '#282a36'
+web_bg = '#9de0ba'
+web_fg = '#282a36'
+cloud_bg = '#ffd580'
+cloud_fg = '#282a36'
+duration_bg = '#9dcff5'
+duration_fg = '#282a36'
+status_fg = '#282a36'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.nord]
+os_bg = '#88c0d0'
+os_fg = '#282a36'
+path_bg = '#eceff4'
+path_fg = '#282a36'
+git_bg = '#d5ace0'
+git_fg = '#282a36'
+java_bg = '#e59aab'
+java_fg = '#282a36'
+kotlin_bg = '#bfade5'
+kotlin_fg = '#282a36'
+build_bg = '#8fceba'
+build_fg = '#282a36'
+language_bg = '#bfade5'
+language_fg = '#282a36'
+web_bg = '#a7d5e2'
+web_fg = '#282a36'
+cloud_bg = '#ebcb8b'
+cloud_fg = '#282a36'
+duration_bg = '#d8dee9'
+duration_fg = '#282a36'
+status_fg = '#282a36'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.daybreak]
+os_bg = '#28587b'
+os_fg = '#f8f8f2'
+path_bg = '#eedcc7'
+path_fg = '#282a36'
+git_bg = '#6b4593'
+git_fg = '#f8f8f2'
+java_bg = '#aa3c31'
+java_fg = '#f8f8f2'
+kotlin_bg = '#4f3f71'
+kotlin_fg = '#f8f8f2'
+build_bg = '#326450'
+build_fg = '#f8f8f2'
+language_bg = '#4f3f71'
+language_fg = '#f8f8f2'
+web_bg = '#345265'
+web_fg = '#f8f8f2'
+cloud_bg = '#e4c47b'
+cloud_fg = '#282a36'
+duration_bg = '#f1c2a2'
+duration_fg = '#282a36'
+status_fg = '#f8f8f2'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.halloween]
+os_bg = '#44265a'
+os_fg = '#f8f8f2'
+path_bg = '#ffae57'
+path_fg = '#282a36'
+git_bg = '#c59bff'
+git_fg = '#282a36'
+java_bg = '#ff8d75'
+java_fg = '#282a36'
+kotlin_bg = '#b39ce8'
+kotlin_fg = '#282a36'
+build_bg = '#b5ef8b'
+build_fg = '#282a36'
+language_bg = '#b39ce8'
+language_fg = '#282a36'
+web_bg = '#daa5ee'
+web_fg = '#282a36'
+cloud_bg = '#ffd58a'
+cloud_fg = '#282a36'
+duration_bg = '#c7e8a5'
+duration_fg = '#282a36'
+status_fg = '#282a36'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.thanksgiving]
+os_bg = '#becb8b'
+os_fg = '#282a36'
+path_bg = '#f7d9a0'
+path_fg = '#282a36'
+git_bg = '#edb17d'
+git_fg = '#282a36'
+java_bg = '#de927f'
+java_fg = '#282a36'
+kotlin_bg = '#8b4657'
+kotlin_fg = '#f8f8f2'
+build_bg = '#627543'
+build_fg = '#f8f8f2'
+language_bg = '#8b4657'
+language_fg = '#f8f8f2'
+web_bg = '#d6bc8f'
+web_fg = '#282a36'
+cloud_bg = '#694a36'
+cloud_fg = '#f8f8f2'
+duration_bg = '#f4c89b'
+duration_fg = '#282a36'
+status_fg = '#282a36'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.christmas]
+os_bg = '#225545'
+os_fg = '#f8f8f2'
+path_bg = '#e5f1dc'
+path_fg = '#282a36'
+git_bg = '#b34256'
+git_fg = '#f8f8f2'
+java_bg = '#ff9a9e'
+java_fg = '#282a36'
+kotlin_bg = '#f3ca73'
+kotlin_fg = '#282a36'
+build_bg = '#30724f'
+build_fg = '#f8f8f2'
+language_bg = '#f3ca73'
+language_fg = '#282a36'
+web_bg = '#9ed7bd'
+web_fg = '#282a36'
+cloud_bg = '#cae8df'
+cloud_fg = '#282a36'
+duration_bg = '#f7d27b'
+duration_fg = '#282a36'
+status_fg = '#f8f8f2'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.new_year]
+os_bg = '#333152'
+os_fg = '#f8f8f2'
+path_bg = '#f3df9a'
+path_fg = '#282a36'
+git_bg = '#c8b3ff'
+git_fg = '#282a36'
+java_bg = '#edb28e'
+java_fg = '#282a36'
+kotlin_bg = '#584080'
+kotlin_fg = '#f8f8f2'
+build_bg = '#a7ebdb'
+build_fg = '#282a36'
+language_bg = '#584080'
+language_fg = '#f8f8f2'
+web_bg = '#b7a4ec'
+web_fg = '#282a36'
+cloud_bg = '#9fceff'
+cloud_fg = '#282a36'
+duration_bg = '#ffb0cc'
+duration_fg = '#282a36'
+status_fg = '#282a36'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.original_blue]
+os_bg = '#89b4fa'
+os_fg = '#282a36'
+path_bg = '#a9c5ff'
+path_fg = '#282a36'
+git_bg = '#a5a9f6'
+git_fg = '#282a36'
+java_bg = '#7fa1e0'
+java_fg = '#282a36'
+kotlin_bg = '#a6b7ff'
+kotlin_fg = '#282a36'
+build_bg = '#8acbe5'
+build_fg = '#282a36'
+language_bg = '#a6b7ff'
+language_fg = '#282a36'
+web_bg = '#b7e0ef'
+web_fg = '#282a36'
+cloud_bg = '#8fc7f0'
+cloud_fg = '#282a36'
+duration_bg = '#b1c9ff'
+duration_fg = '#282a36'
+status_fg = '#282a36'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.dracula]
+os_bg = '#bd93f9'
+os_fg = '#282a36'
+path_bg = '#8be9fd'
+path_fg = '#282a36'
+git_bg = '#ff79c6'
+git_fg = '#282a36'
+java_bg = '#ffb86c'
+java_fg = '#282a36'
+kotlin_bg = '#bd93f9'
+kotlin_fg = '#282a36'
+build_bg = '#50fa7b'
+build_fg = '#282a36'
+language_bg = '#bd93f9'
+language_fg = '#282a36'
+web_bg = '#8be9fd'
+web_fg = '#282a36'
+cloud_bg = '#f1fa8c'
+cloud_fg = '#282a36'
+duration_bg = '#ffb86c'
+duration_fg = '#282a36'
+status_fg = '#282a36'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.dracula_dark]
+os_bg = '#494161'
+os_fg = '#f8f8f2'
+path_bg = '#3e5462'
+path_fg = '#8be9fd'
+git_bg = '#573b56'
+git_fg = '#f8f8f2'
+java_bg = '#574942'
+java_fg = '#ffb86c'
+kotlin_bg = '#494161'
+kotlin_fg = '#f8f8f2'
+build_bg = '#315845'
+build_fg = '#50fa7b'
+language_bg = '#494161'
+language_fg = '#f8f8f2'
+web_bg = '#3e5462'
+web_fg = '#8be9fd'
+cloud_bg = '#545849'
+cloud_fg = '#f1fa8c'
+duration_bg = '#574942'
+duration_fg = '#ffb86c'
+status_fg = '#f8f8f2'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.aurora]
+os_bg = '#c3a6ff'
+os_fg = '#182433'
+path_bg = '#71dce8'
+path_fg = '#182433'
+git_bg = '#b2efad'
+git_fg = '#182433'
+java_bg = '#ffa6cd'
+java_fg = '#182433'
+kotlin_bg = '#8db5ff'
+kotlin_fg = '#182433'
+build_bg = '#85e0c0'
+build_fg = '#182433'
+language_bg = '#8db5ff'
+language_fg = '#182433'
+web_bg = '#9ce2ff'
+web_fg = '#182433'
+cloud_bg = '#f1e59b'
+cloud_fg = '#182433'
+duration_bg = '#c5f0d5'
+duration_fg = '#182433'
+status_fg = '#182433'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.solar_flare]
+os_bg = '#ffcb66'
+os_fg = '#251c32'
+path_bg = '#ff9b6a'
+path_fg = '#251c32'
+git_bg = '#ff73a5'
+git_fg = '#251c32'
+java_bg = '#e58ccc'
+java_fg = '#251c32'
+kotlin_bg = '#bf99ff'
+kotlin_fg = '#251c32'
+build_bg = '#82d9d0'
+build_fg = '#251c32'
+language_bg = '#bf99ff'
+language_fg = '#251c32'
+web_bg = '#9ebee7'
+web_fg = '#251c32'
+cloud_bg = '#8cb9ff'
+cloud_fg = '#251c32'
+duration_bg = '#f2b4af'
+duration_fg = '#251c32'
+status_fg = '#251c32'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.velvet_gold]
+os_bg = '#273f45'
+os_fg = '#f7e7ba'
+path_bg = '#305766'
+path_fg = '#f7e7ba'
+git_bg = '#5b304b'
+git_fg = '#f7e7ba'
+java_bg = '#6a4033'
+java_fg = '#f7e7ba'
+kotlin_bg = '#493d6b'
+kotlin_fg = '#f7e7ba'
+build_bg = '#284f43'
+build_fg = '#f7e7ba'
+language_bg = '#493d6b'
+language_fg = '#f7e7ba'
+web_bg = '#354d62'
+web_fg = '#f7e7ba'
+cloud_bg = '#343b5e'
+cloud_fg = '#f7e7ba'
+duration_bg = '#5b4238'
+duration_fg = '#f7e7ba'
+status_fg = '#f7e7ba'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
+
+[palettes.obsidian]
+os_bg = '#201b2d'
+os_fg = '#d1b5ff'
+path_bg = '#1b2632'
+path_fg = '#b6dfff'
+git_bg = '#282137'
+git_fg = '#d4bdff'
+java_bg = '#2b2227'
+java_fg = '#f1c6bf'
+kotlin_bg = '#282137'
+kotlin_fg = '#d4bdff'
+build_bg = '#172b2b'
+build_fg = '#b2e5d5'
+language_bg = '#172b2b'
+language_fg = '#b2e5d5'
+web_bg = '#1e2938'
+web_fg = '#b6dfff'
+cloud_bg = '#2b2720'
+cloud_fg = '#f3d3a0'
+duration_bg = '#282631'
+duration_fg = '#ddd3f3'
+status_fg = '#d4bdff'
+success_fg = '#50fa7b'
+error_fg = '#ff5555'
+mode_fg = '#bd93f9'
+muted_fg = '#a6adc8'
