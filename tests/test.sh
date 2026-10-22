@@ -183,6 +183,30 @@ env HOME="$sandbox/bash home" TERM=xterm-256color bash --noprofile --norc -c 'so
 assert_choice "$sandbox/bash active.toml" C2 ocean
 pass 'Bash setup loads the switcher in login shells and retains an existing profile'
 
+# Native Node detection must tolerate a briefly slow runtime without losing its version.
+# Use a runtime on PATH, independent of workstation paths and project engine ranges.
+mkdir -p "$sandbox/node project" "$sandbox/node runtime"
+printf '%s\n' '{"engines":{"node":">=20.0.0"}}' > "$sandbox/node project/package.json"
+cat > "$sandbox/node runtime/node" <<'NODE'
+#!/bin/sh
+sleep 1
+printf 'v26.11.1\n'
+NODE
+chmod +x "$sandbox/node runtime/node"
+for layout in C2 A C D; do
+  switch --style "$layout" --output "$sandbox/node-theme.toml" > /dev/null
+  (cd "$sandbox/node project" && env PATH="$sandbox/node runtime:$PATH" TERM=xterm-256color \
+    STARSHIP_CONFIG="$sandbox/node-theme.toml" starship module nodejs) \
+    > "$sandbox/node.out" 2> "$sandbox/node.err"
+  [[ ! -s "$sandbox/node.err" ]] || { cat "$sandbox/node.err" >&2; fail "Delayed Node startup emitted diagnostics: $layout"; }
+  contains "$sandbox/node.out" '26.11'
+  (cd "$sandbox/work tree" && env PATH="$sandbox/node runtime:$PATH" TERM=xterm-256color \
+    STARSHIP_CONFIG="$sandbox/node-theme.toml" starship module nodejs) \
+    > "$sandbox/no-node.out" 2> "$sandbox/no-node.err"
+  [[ ! -s "$sandbox/no-node.out" && ! -s "$sandbox/no-node.err" ]] || fail 'Node appeared outside a Node project'
+done
+pass 'All layouts tolerate slow Node startup, show the active runtime version, and hide Node outside matching projects'
+
 # Render every style/palette with real Starship, including a dirty Git tree.
 # Starship can return success for invalid TOML; any stderr diagnostic is a failure.
 mkdir -p "$sandbox/git project"
